@@ -63,7 +63,7 @@ def getNumAddr(subnet_mask):
     return num_hosts
 
 
-#Given DDN IP Address, converts to binary address each octet decimal is an 8 digit binary value)
+#Given DDN IP Address, converts to binary address  (each octet decimal is an 8 digit binary value)
 def getBinAddr(ip_addr):
     ip_addr = ip_addr.split('.')
     binary_addr = ''
@@ -113,7 +113,15 @@ def getUsableRange(ip_addr, subnet_mask):
     return [('.'.join(net_dec)), ('.').join(bcast_dec)]
 
 
-#displays all relevant information given IP (DDN) and subnet mask (CIDR or prefix)
+#calculates the total subnets you can have
+def getNumSubnets(subnet_mask):
+    subnet_mask = int(getDecMask(subnet_mask).split('.')[-1])
+    borrowed_bits = getKey(subnet_mask, subnet_dict)
+    total_subnets = pow(2,borrowed_bits)
+    return total_subnets
+    
+
+#displays all relevant information given IP (DDN) and subnet mask (DDN or CIDR)
 def SubnetCalculator():
     ip_addr = input('IP Address: ')
     subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
@@ -131,7 +139,8 @@ def SubnetCalculator():
     print('Usable IP Range: ' + str(usable[0]) + ' - ' + str(usable[1]))
     print('Broadcast address: ' + bcast)
     print('Number of Addresses: ' + str(hosts))
-    print('Number of Usable Hosts: ' + str(hosts-2))
+    print('Number of Hosts: ' + str(hosts-2))
+    print('Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
 
 
 SubnetCalculator()
