@@ -25,7 +25,7 @@ def snMaskConverter(subnet_mask):
         converted_subnet = '/' + str(prefix_sum)
     #Converts CIDR to DDN
     if '/' in subnet_mask:
-        subnet = int(subnet_mask[1:])
+        subnet = getPrefixMask(subnet_mask)
         q,r = divmod(subnet,8)
         converted_subnet = ('255.'*q) + str(subnet_dict[r])
         octet_count = converted_subnet.count('.')
@@ -115,8 +115,12 @@ def getUsableRange(ip_addr, subnet_mask):
 
 #calculates the total subnets you can have
 def getNumSubnets(subnet_mask):
-    subnet_mask = int(getDecMask(subnet_mask).split('.')[-1])
-    borrowed_bits = getKey(subnet_mask, subnet_dict)
+    subnet_mask = getDecMask(subnet_mask).split('.')
+    nonzero_digit_index = 0
+    for index, octet in enumerate(subnet_mask, 0):
+        if octet!='0' and index>nonzero_digit_index: #finding last non-zero octet
+            nonzero_digit_index=index
+    borrowed_bits = getKey(int(subnet_mask[nonzero_digit_index]), subnet_dict)
     total_subnets = pow(2,borrowed_bits)
     return total_subnets
     
@@ -125,7 +129,6 @@ def getNumSubnets(subnet_mask):
 def SubnetCalculator():
     ip_addr = input('IP Address: ')
     subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
-    wildcard_bits = 32-getPrefixMask(subnet_mask)
     net = getNetBcastDec(ip_addr,subnet_mask)[0]
     bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
     usable = getUsableRange(ip_addr,subnet_mask)
@@ -134,13 +137,13 @@ def SubnetCalculator():
     print()
     print('CIDR notation: ' + ip_addr + '/' + str(getPrefixMask(subnet_mask)))
     print('Subnet Mask: /' + str(getPrefixMask(subnet_mask)) + ' or ' + getDecMask(subnet_mask))
-    print('Wildcard Mask: /'  + str(wildcard_bits) + ' or ' + getWildcardMask(getDecMask(subnet_mask)))
+    print('Wildcard Mask: '  + getWildcardMask(getDecMask(subnet_mask)))
     print('Network address: ' + net)
     print('Usable IP Range: ' + str(usable[0]) + ' - ' + str(usable[1]))
     print('Broadcast address: ' + bcast)
     print('Number of Addresses: ' + str(hosts))
     print('Number of Hosts: ' + str(hosts-2))
-    print('Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
+    print('Max Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
 
 
 SubnetCalculator()
