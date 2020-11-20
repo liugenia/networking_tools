@@ -29,22 +29,38 @@ def snMaskConverter(subnet_mask):
         subnet = int(subnet_mask[1:])
         q,r = divmod(subnet,8)
         converted_subnet = ("255."*q) + str(subnet_dict[r])
-        octet_count = converted_subnet.count('.')
+        octet_count = converted_subnet.count(".")
         if octet_count<3:
             converted_subnet += (".0"*(3-octet_count))
     return converted_subnet
 
 
-#keeps or converts to prefix notation when necessary for the methods that need it
-def prefixMask(subnet_mask):
+#keeps or converts to CIDR notation when necessary
+def getPrefixMask(subnet_mask):
     if "." in subnet_mask:
         subnet_mask = snMaskConverter(subnet_mask)
     return int(subnet_mask[1:])
 
 
+#keeps or converts to DDN when necessary
+def getDecMask(subnet_mask):
+    if "/" in subnet_mask:
+        subnet_mask = snMaskConverter(subnet_mask)
+    return subnet_mask
+
+
+#calculates wildcard mask given subnet mask decimal
+def getWildcardMask(subnet_mask):
+    snet_dec = getDecMask(subnet_mask).split(".")
+    wildcard_dec = ''
+    for octet in snet_dec:
+        wildcard_dec += (str(255-int(octet)) + ".")
+    return  wildcard_dec[:-1]
+
+
 #calculates the total number of hosts, including network and broadcast
-def numHosts(subnet_mask):
-    subnet_mask = prefixMask(subnet_mask)
+def getNumAddr(subnet_mask):
+    subnet_mask = getPrefixMask(subnet_mask)
     host_bits= 32-subnet_mask
     num_hosts= pow(2,host_bits)
     return num_hosts
@@ -62,7 +78,7 @@ def getBinAddr(ip_addr):
 #Given binary IP Address and subnet mask, gets the network and broadcast address
 def getNetBcastBin(ip_addr, subnet_mask):
     binary_addr = getBinAddr(ip_addr)
-    subnet_mask = prefixMask(subnet_mask)
+    subnet_mask = getPrefixMask(subnet_mask)
     net_addr = ''
     bcast_addr = ''
     for digits in binary_addr[:subnet_mask]:
@@ -76,12 +92,12 @@ def getNetBcastBin(ip_addr, subnet_mask):
 
 #Converts a binary value to decimal
 def binToDec(ip_addr):
-    split_strings = []
+    octets = []
     dec_addr = ''
     n=8
     for octet in range (0,len(ip_addr),n):
-        split_strings.append(ip_addr[octet:(octet+n)])
-    for binary in split_strings:
+        octets.append(ip_addr[octet:(octet+n)])
+    for binary in octets:
         dec_addr += (str(int(binary,2)) + ".")
     return dec_addr[:-1]
 
@@ -97,34 +113,35 @@ def getNetBcastDec(ip_addr, subnet_mask):
 def getUsableRange(ip_addr, subnet_mask):
     net_dec = getNetBcastDec(ip_addr,subnet_mask)[0].split(".")
     bcast_dec = getNetBcastDec(ip_addr,subnet_mask)[1].split(".")
-    first = int(net_dec[-1])+1
-    last = int(bcast_dec[-1])-1
+    net_dec[-1] = int(net_dec[-1])+1
+    bcast_dec[-1] = int(bcast_dec[-1])-1
     first_str = ''
     last_str = ''
-    for octets in net_dec[:-1]:
-        first_str+=str(octets + ".")
-    first_str+=str(first)
-    for octets in bcast_dec[:-1]:
-        last_str+=str(octets + ".")
-    last_str+=str(last)
-    return [first_str, last_str]
+    for octets in net_dec:
+        first_str+=str(str(octets) + ".")
+    for octets in bcast_dec:
+        last_str+=str(str(octets) + ".")
+    return [first_str[:-1], last_str[:-1]]
 
 
 #displays all relevant information given IP (DDN) and subnet mask (CIDR or prefix)
 def IPsubnetCalculator():
     ip_addr = input("IP Address: ")
     subnet_mask = input("Subnet mask: ")
+    wildcard_bits = 32-getPrefixMask(subnet_mask)
     net = getNetBcastDec(ip_addr,subnet_mask)[0]
     bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
     usable = getUsableRange(ip_addr,subnet_mask)
-    hosts = int(numHosts(subnet_mask))
+    hosts = int(getNumAddr(subnet_mask))
     print()
     print()
-    print("Subnet Mask: " + subnet_mask + " or " + snMaskConverter(subnet_mask))
+    print("CIDR notation: " + ip_addr + "/" + str(getPrefixMask(subnet_mask)))
+    print("Subnet Mask: /" + str(getPrefixMask(subnet_mask)) + " or " + getDecMask(subnet_mask))
+    print("Wildcard Mask: /"  + str(wildcard_bits) + " or " + getWildcardMask(getDecMask(subnet_mask)))
     print("Network address: " + net)
     print("Usable IP Range: " + str(usable[0]) + " - " + str(usable[1]))
     print("Broadcast address: " + bcast)
-    print("Number of Hosts: " + str(hosts))
+    print("Number of Addresses: " + str(hosts))
     print("Number of Usable Hosts: " + str(hosts-2))
 
 
