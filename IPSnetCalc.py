@@ -4,6 +4,8 @@ takes IP and Subnet, returns relevant information
 by Eugenia Liu
 '''
 
+from random import randint
+
 #dict of the 9 possible values of each octet of a subnet mask
 subnet_dict = {0:0, 1:128, 2:192, 3:224, 4:240, 5:248, 6:252, 7:254, 8:255}
 
@@ -127,8 +129,13 @@ def getNumSubnets(subnet_mask):
 
 #displays all relevant information given IP (DDN) and subnet mask (DDN or CIDR)
 def SubnetCalculator():
-    ip_addr = input('IP Address: ')
-    subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
+    choice = input('Would you like to enter an IP? [Yes / Surprise me!]: ')
+    if 'y' in choice.lower():
+        ip_addr = input('IP Address: ')
+        subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
+    elif 's' in choice.lower():
+        ip_addr = '.'.join([str(randint(0,255)) for x in range(4)])
+        subnet_mask = '/' + str(randint(0,32))
     net = getNetBcastDec(ip_addr,subnet_mask)[0]
     bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
     usable = getUsableRange(ip_addr,subnet_mask)
