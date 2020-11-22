@@ -67,16 +67,15 @@ def automate_ssh_connection(running=True):
     connection = startConnection()
     while running:
         print('What would you like to do?')
-        choice = input('[ Show device config | Configure device | Quit ]')
-        if 'show' in choice.lower():
+        choice = input('(1) Show device config, (2) Configure device, (3) Quit  ')
+        if choice=='1':
             sendCommand(connection)
-        elif 'config' in choice.lower():
+        elif choice=='2':
             sendConfig(connection)
-        elif 'qu' in choice.lower():
-            print('Thanks for using network config. Goodbye!')
+        elif choice=='3':
+            print('Thanks for using SSH Automation. Goodbye!')
             disconnectDevice(connection)
             running = False
 
 
-# startConnection()
 automate_ssh_connection()
