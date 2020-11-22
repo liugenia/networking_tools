@@ -1,9 +1,6 @@
-'''
-Subnet Calculator (currently only IPv4...working on IPv6)
-takes IP and Subnet, returns relevant information
-by Eugenia Liu
-'''
+#!/usr/bin/env python
 
+from __future__ import absolute_import, division, print_function
 from random import randint
 
 #dict of the 9 possible values of each octet of a subnet mask
@@ -128,29 +125,35 @@ def getNumSubnets(subnet_mask):
     
 
 #displays all relevant information given IP (DDN) and subnet mask (DDN or CIDR)
-def SubnetCalculator():
-    choice = input('Would you like to enter an IP? [Yes / Surprise me!]: ')
-    if 'y' in choice.lower():
-        ip_addr = input('IP Address: ')
-        subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
-    elif 's' in choice.lower():
-        ip_addr = '.'.join([str(randint(0,255)) for x in range(4)])
-        subnet_mask = '/' + str(randint(0,32))
-    net = getNetBcastDec(ip_addr,subnet_mask)[0]
-    bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
-    usable = getUsableRange(ip_addr,subnet_mask)
-    hosts = int(getNumAddr(subnet_mask))
+def SubnetCalculator(running=True):
     print()
-    print()
-    print('CIDR notation: ' + ip_addr + '/' + str(getPrefixMask(subnet_mask)))
-    print('Subnet Mask: /' + str(getPrefixMask(subnet_mask)) + ' or ' + getDecMask(subnet_mask))
-    print('Wildcard Mask: '  + getWildcardMask(getDecMask(subnet_mask)))
-    print('Network address: ' + net)
-    print('Usable IP Range: ' + str(usable[0]) + ' - ' + str(usable[1]))
-    print('Broadcast address: ' + bcast)
-    print('Number of Addresses: ' + str(hosts))
-    print('Number of Hosts: ' + str(hosts-2))
-    print('Max Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
+    while running:
+        choice = input('Would you like to enter an IP? (1) Yes, (2) Surprise me!, (3) Quit   ')
+        if choice=='1':
+            ip_addr = input('IP Address: ')
+            subnet_mask = input('Subnet mask (x.x.x.x or /x): ')
+        elif choice=='2':
+            ip_addr = '.'.join([str(randint(0,255)) for x in range(4)])
+            subnet_mask = '/' + str(randint(0,32))
+        elif choice=='3':
+            running=False
+            print('Thanks for using IP Subnet Calculator. Goodbye!')
+            break
+        net = getNetBcastDec(ip_addr,subnet_mask)[0]
+        bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
+        usable = getUsableRange(ip_addr,subnet_mask)
+        hosts = int(getNumAddr(subnet_mask))
+        print()
+        print('CIDR notation: ' + ip_addr + '/' + str(getPrefixMask(subnet_mask)))
+        print('Subnet Mask: /' + str(getPrefixMask(subnet_mask)) + ' or ' + getDecMask(subnet_mask))
+        print('Wildcard Mask: '  + getWildcardMask(getDecMask(subnet_mask)))
+        print('Network address: ' + net)
+        print('Usable IP Range: ' + str(usable[0]) + ' - ' + str(usable[1]))
+        print('Broadcast address: ' + bcast)
+        print('Number of Addresses: ' + str(hosts))
+        print('Number of Hosts: ' + str(hosts-2))
+        print('Max Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
+        print()
 
 
 SubnetCalculator()
