@@ -128,7 +128,7 @@ def getNumSubnets(subnet_mask):
 def SubnetCalculator():
     print()
     while True:
-        choice = input('Would you like to enter an IP? (1) Yes, (2) Surprise me!, (3) Quit   ')
+        choice = input('Would you like to enter an IP? (1) Yes, (2) Surprise me!, (3) Quit\n')
         if choice=='1':
             ip_addr = input('IP Address: ')
             subnet_mask = input('Subnet mask (x.x.x.x or /x): ')

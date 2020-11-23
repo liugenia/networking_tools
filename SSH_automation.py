@@ -39,7 +39,7 @@ def startConnection():
 
 #sending a specific command
 def sendCommand(connection):
-    command = input('Enter Command: ')
+    command = input('Enter Command:\n')
     output = connection.send_command(command)
     print(output)
 
@@ -48,7 +48,7 @@ def sendCommand(connection):
 def sendConfig(connection):
     #gathering the commands
     config_commands = []
-    command = input('Enter config: ')
+    command = input('Enter config:\n')
     while command != "quit":
         config_commands += config_commands
 
@@ -67,7 +67,7 @@ def automate_ssh_connection(running=True):
     connection = startConnection()
     while running:
         print('What would you like to do?')
-        choice = input('(1) Show device config, (2) Configure device, (3) Quit  ')
+        choice = input('(1) Show device config, (2) Configure device, (3) Quit\n')
         if choice=='1':
             sendCommand(connection)
         elif choice=='2':
