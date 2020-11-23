@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import absolute_import, division, print_function
 from random import randint
@@ -125,9 +125,9 @@ def getNumSubnets(subnet_mask):
     
 
 #displays all relevant information given IP (DDN) and subnet mask (DDN or CIDR)
-def SubnetCalculator(running=True):
+def SubnetCalculator():
     print()
-    while running:
+    while True:
         choice = input('Would you like to enter an IP? (1) Yes, (2) Surprise me!, (3) Quit   ')
         if choice=='1':
             ip_addr = input('IP Address: ')
@@ -136,7 +136,6 @@ def SubnetCalculator(running=True):
             ip_addr = '.'.join([str(randint(0,255)) for x in range(4)])
             subnet_mask = '/' + str(randint(0,32))
         elif choice=='3':
-            running=False
             print('Thanks for using IP Subnet Calculator. Goodbye!')
             break
         net = getNetBcastDec(ip_addr,subnet_mask)[0]
