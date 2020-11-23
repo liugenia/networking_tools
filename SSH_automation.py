@@ -27,10 +27,11 @@ def startConnection():
         'ip': ip_addr,
         'username': username,
         'password': password,
-        'secret': secret, 
+        'secret': secret,
     }
     print(
-        'Connecting to device', device_info['ip'], 'as', device_info['username'], "\nEnter a command or type 'quit' to exit program")
+        'Connecting to device', device_info['ip'], 'as', device_info['username'], 
+        "\nEnter a command or type 'quit' to exit program")
 
     #connect to device using values stored in dictionary
     connection = netmiko.ConnectHandler(**device_info)
