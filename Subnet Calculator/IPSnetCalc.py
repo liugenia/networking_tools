@@ -2,6 +2,10 @@
 
 from __future__ import absolute_import, division, print_function
 from random import randint
+import signal
+
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # IOError: Broken pipe
+signal.signal(signal.SIGINT, signal.SIG_DFL)  # KeyboardInterrupt: Ctrl-C
 
 #dict of the 9 possible values of each octet of a subnet mask
 subnet_dict = {0:0, 1:128, 2:192, 3:224, 4:240, 5:248, 6:252, 7:254, 8:255}
@@ -141,7 +145,7 @@ def SubnetCalculator():
         net = getNetBcastDec(ip_addr,subnet_mask)[0]
         bcast = getNetBcastDec(ip_addr,subnet_mask)[1]
         usable = getUsableRange(ip_addr,subnet_mask)
-        hosts = int(getNumAddr(subnet_mask))
+        addrs = int(getNumAddr(subnet_mask))
         print()
         print('CIDR notation: ' + ip_addr + '/' + str(getPrefixMask(subnet_mask)))
         print('Subnet Mask: /' + str(getPrefixMask(subnet_mask)) + ' or ' + getDecMask(subnet_mask))
@@ -149,8 +153,8 @@ def SubnetCalculator():
         print('Network address: ' + net)
         print('Usable IP Range: ' + str(usable[0]) + ' - ' + str(usable[1]))
         print('Broadcast address: ' + bcast)
-        print('Number of Addresses: ' + str(hosts))
-        print('Number of Hosts: ' + str(hosts-2))
+        print('Number of Addresses: ' + str(addrs))
+        print('Number of Hosts: ' + str(max(0, addrs-2))) #does not display negative host addresses
         print('Max Number of Subnets: ' + str(getNumSubnets(subnet_mask)))
         print()
 
