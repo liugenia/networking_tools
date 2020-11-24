@@ -2,8 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 from getpass import getpass
-import netmiko, paramiko
 import json
+import netmiko, paramiko
 import signal
 import sys
 
@@ -13,6 +13,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)  # KeyboardInterrupt: Ctrl-C
 
 #Initiate an connection to device via SSH given IP, device type, user, pass, enable secret
 def startConnection():
+    #getting device info
     print('-'*79)
     ip_addr = input('IP Address: ')
     device = input('Device type: ')
@@ -21,7 +22,7 @@ def startConnection():
     secret = getpass('Secret: ')
     print('-'*79)
 
-    #stores device information in a dictionary, adds to dictlist devices
+    #storing device info in dict
     device_info = {
         'device_type': device,
         'ip': ip_addr,
@@ -30,35 +31,20 @@ def startConnection():
         'secret': secret,
     }
     print(
-        'Connecting to device', device_info['ip'], 'as', device_info['username'], 
-        "\nEnter a command or type 'quit' to exit program")
+        'Connecting to', device_info['ip'], 'as', device_info['username'], 
+        "\nEnter a command (commands sep by comma) or type 'quit' to exit program")
 
-    #connect to device using values stored in dictionary
+    #establishing the connection with given information from device_info
     connection = netmiko.ConnectHandler(**device_info)
-    connection.enable() #enable mode
+    connection.enable() #enters enable mode with provided password
     return connection
 
 
-#sending a specific command
-def sendCommand(connection, command):
-    output = connection.send_command(command)
-    print(output)
-
-
-#handles configuration commands sent
+#handles configuration commands sent, parses into list
 def sendConfig(connection, command_list):
-    #gathering the commands
     config_commands = []
     config_commands += command_list.split(',')
-
-    #showing output of the command
-    output = connection.send_config_set(config_commands, exit_config_mode=False)
-    print(output)
-
-
-#dicsonnects from the device
-def disconnectDevice(connection):
-    connection.disconnect()
+    connection.send_config_set(config_commands, exit_config_mode=False)
 
 
 netmiko_exceptions = (
@@ -77,10 +63,11 @@ def automate_ssh_connection(running=True):
             print('-'*79)
             choice = input(connection.find_prompt())
             if 'show' in choice:
-                sendCommand(connection, choice)
+                output = connection.send_command(choice)
+                print(output)
             elif choice.lower()=='quit':
                 print('Thanks for using SSH Automation. Goodbye!')
-                disconnectDevice(connection)
+                connection.disconnect()
                 running = False
             else:
                 sendConfig(connection, choice)
