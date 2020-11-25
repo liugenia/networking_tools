@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 from random import randint
 import signal
 
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # IOError: Broken pipe
+# signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # IOError: Broken pipe
 signal.signal(signal.SIGINT, signal.SIG_DFL)  # KeyboardInterrupt: Ctrl-C
 
 #dict of the 9 possible values of each octet of a subnet mask
@@ -30,11 +30,10 @@ def snMaskConverter(subnet_mask):
     if '/' in subnet_mask:
         subnet = getPrefixMask(subnet_mask)
         q,r = divmod(subnet,8)
-        converted_subnet = ('255.'*q) + str(subnet_dict[r])
-        octet_count = converted_subnet.count('.')
-        if octet_count<3:
-            converted_subnet += ('.0'*(3-octet_count))
-    return converted_subnet
+        converted_subnet = (['255']*q) + [str(subnet_dict[r])]
+        if len(converted_subnet)<4:
+            converted_subnet += ('0'*(4-len(converted_subnet)))
+    return '.'.join(converted_subnet[0:4]) #ensures 4 octets only, gets rid of extra 0 if r=0
 
 
 #keeps or converts to CIDR notation when necessary
@@ -111,9 +110,12 @@ def getNetBcastDec(ip_addr, subnet_mask):
 def getUsableRange(ip_addr, subnet_mask):
     net_dec = [str(octet) for octet in getNetBcastDec(ip_addr,subnet_mask)[0].split('.')]
     bcast_dec = [str(octet) for octet in getNetBcastDec(ip_addr,subnet_mask)[1].split('.')]
-    net_dec[-1] = str(int(net_dec[-1])+1)
-    bcast_dec[-1] = str(int(bcast_dec[-1])-1)
-    return [('.'.join(net_dec)), ('.').join(bcast_dec)]
+    if abs(int(net_dec[-1])-int(bcast_dec[-1]))<=2: #if there are 2 or less addresses, return addresses as is
+        return [('.'.join(net_dec)), ('.').join(bcast_dec)]
+    else: #otherwise return net+1, bcast-1 as the usable range
+        net_dec[-1] = str(int(net_dec[-1])+1) 
+        bcast_dec[-1] = str(int(bcast_dec[-1])-1)
+        return [('.'.join(net_dec)), ('.').join(bcast_dec)]
 
 
 #calculates the total subnets you can have
